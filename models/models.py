@@ -2,13 +2,16 @@
 
 
 from odoo import models, fields, api
-from datetime import datetime
+from datetime import datetime, timedelta
 # from dateutil.relativedelta import relativedelta
 
 # import sys
 # import sched
 # import time
 # import math
+
+FMT = '%Y-%m-%d %H:%M:%S'
+
 
 
 class Flight(models.Model):
@@ -25,12 +28,14 @@ class Flight(models.Model):
 
     @api.one
     def get_type(self):
-        print()
-        print()
-        print(self.name)
-        print()
-        print()
-        print()
+        # date = datetime.strptime(self.eta,FMT)
+        # print()
+        # print()
+        # print(self.eta)
+        # print(str(date + timedelta(hours=7)))
+        # print()
+        # print()
+        # print()
         if self.name[:1] == 'A':
             self.planetype = 'wide'
         else:
@@ -38,20 +43,39 @@ class Flight(models.Model):
 
     @api.multi
     def create_schedule(self):
+
+        date = datetime.strptime(self.etd,FMT)
+        #date_minus_three = date - timedelta(hours=3)
+        schedules = self.env['fms.schedule'].search([
+            ('arrival_date','=',date.date()),
+             #('start_time','>=',self.date_minus_three),
+            ('end_time','<=',self.etd)])
+       
+            
+        print()
+        print()
+        print()
+        #print(date_minus_three)
+        print([schedule.flight.name for schedule in schedules])
+        print()
+        print()
         self.env['fms.schedule'].create({
             'flight':self.id,
-            'date':self.eta
+            'arrival_date': date.date(),
+            'start_time':date - timedelta(hours=3),
+            'end_time':self.etd,
+            'counter':[(6,0,[counter.id for counter in self.counters])]
             })
 
         self.state = 'confirmed'
-
+###########################################
     # @api.model
     # def create(self,values):
     #     schedule = self.env['fms.schedule'].create({
     #         'date':values['eta']
     #         })
     #     return super(Flight,self).create(values)
-
+###############################################
 
 class Schedule(models.Model):
     _name = 'fms.schedule'
@@ -59,36 +83,11 @@ class Schedule(models.Model):
     name = fields.Char()
     counter = fields.Many2many("fms.counter")
     flight = fields.Many2one("fms.flight")
-    date = fields.Datetime()
+    arrival_date = fields.Date()
+    start_time = fields.Datetime()
+    end_time = fields.Datetime()
         
-#   Airline = fields.One2many('airline.company','name')    
 
-   
-    # @api.one
-    # def calc_age(self):
-    #     date_one = fields.Date.from_string(self.birth_date)
-    #     today =  fields.Date.from_string(fields.Date.today())
-    #     age = relativedelta(today,date_one)
-    #     self.age = age.years
-
-    # @api.one
-    # def get_manager(self):
-    # 	self.manager = self.department.manager.id
-
-    # @api.multi
-    # def get_emps(self):
-    # 	self.dep_emp = ''
-    # 	for emp in self.department.employees:
-    # 		self.dep_emp += ' ' + str(emp.name)
-    # 		print()
-    # 		print()
-    # 		print()
-    # 		print(type(self.dep_emp))
-    # 		print(type(emp.name))
-    # 		print()
-    # 		print()
-    # 		print()
-    # 		print()
 
 
 class Type(models.Model):
@@ -129,4 +128,64 @@ class Counter(models.Model):
         records = self.env['fms.counter'].search([])
         for record in records:
             record.timenow = x
+
+#   Airline = fields.One2many('airline.company','name')    
+
+   
+    # @api.one
+    # def calc_age(self):
+    #     date_one = fields.Date.from_string(self.birth_date)
+    #     today =  fields.Date.from_string(fields.Date.today())
+    #     age = relativedelta(today,date_one)
+    #     self.age = age.years
+
+    # @api.one
+    # def get_manager(self):
+    #   self.manager = self.department.manager.id
+
+    # @api.multi
+    # def get_emps(self):
+    #   self.dep_emp = ''
+    #   for emp in self.department.employees:
+    #       self.dep_emp += ' ' + str(emp.name)
+    #       print()
+    #       print()
+    #       print()
+    #       print(type(self.dep_emp))
+    #       print(type(emp.name))
+    #       print()
+    #       print()
+    #       print()
+    #       print()
+
+    # @api.multi
+    # def create_schedule(self):
+
+    #     date = datetime.strptime(self.etd,FMT)
+    #   #  date_minus_three = date - timedelta(hours=3)
+    #     schedules = self.env['fms.schedule'].search([
+    #         ('arrival_date','=',date.date()),
+    #          ('start_time','>=',self.etd),
+    #         ('end_time','<=',self.etd)])
+
+    #     # counter1=[0,0,0,0,0]
+    #     # for ind, val in enumerate(counter1):
+    #     #     print(ind,val)
+
+    #     print()
+    #     print()
+    #     print()
+    #     #print(date_minus_three)
+    #     print([schedule.flight.name for schedule in schedules])
+    #     print()
+    #     print()
+    #     self.env['fms.schedule'].create({
+    #         'flight':self.id,
+    #         'arrival_date': date.date(),
+    #         'start_time':date - timedelta(hours=3),
+    #         'end_time':self.etd,
+    #         'counter':[(6,0,[counter.id for counter in self.counters])]
+    #         })
+
+    #     self.state = 'confirmed'
 
