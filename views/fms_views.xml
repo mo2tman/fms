@@ -143,7 +143,7 @@
       <field name="interval_type">minutes</field>
       <field name="numbercall">-1</field>
       <field eval="False" name="doall"/>
-      <field name="model_id" ref="model_counter_company"/>
+      <field name="model_id" ref="model_fms_counter"/>
       <field name="state">code</field>
       <field name="code">model.real_time_refresh()</field>
     </record>

@@ -1,0 +1,118 @@
+<odoo>
+	<data>
+		<record id='timetable list' model='ir.ui.view'>
+		<field name='name'>timetable list</field>
+		<field name='model'>flights.timetable</field>
+		<field name='arch' type='xml'>
+			<tree>
+				<field name='name'/>
+				<field name='plane_type'/>
+				<field name='route'/>
+				<field name='etd'/>
+				<field name='eta'/>
+		    	<field name='remark'/>
+			</tree>
+		</field>
+	    </record>
+
+	    <record id='timetable form' model='ir.ui.view'>
+		<field name='name'>timetable form</field>
+		<field name='model'>flights.timetable</field>
+		<field name='arch' type='xml'>
+			<form>
+				<sheet>
+					<group>
+						<field name='name'/>
+						<field name='plane_type'/>
+						<field name='route'/>
+						<field name='etd'/>
+						<field name='eta'/>
+				    	<field name='remark'/>
+					</group>
+				</sheet>
+			</form>
+		</field>
+
+		</record>
+	    <record id='dailyflights list' model='ir.ui.view'>
+		<field name='name'>dailyflights list</field>
+		<field name='model'>flights.dailytable</field>
+		<!-- <field name='inherit_id' ref ='timetable list'/> -->
+		<field name='arch' type='xml'>
+			<tree>
+					<field name='name'/>
+					<field name='plane_type'/>
+					<field name='route'/>
+					<field name='etd'/>
+					<field name='eta'/>
+				   	<field name='remark'/>	
+				   	<field name='atd'/>
+				   	<field name='ata'/>	
+				   	<field name='status'/>
+				   	<field name='comment'/>
+
+			</tree>
+		</field>
+	    </record>
+
+	    <record id='dailyflights form' model='ir.ui.view'>
+		<field name='name'>dailyflights form</field>
+		<field name='model'>flights.dailytable</field>
+		<field name='arch' type='xml'>
+			<form>
+		        
+				<sheet>
+					<group>
+					<field name='name'/>
+					<field name='plane_type'/>
+					<field name='route'/>
+					<field name='etd'/>
+					<field name='eta'/>
+				   	<field name='remark'/>	
+				   	<field name='atd'/>
+				   	<field name='ata'/>	
+				   	<field name='status'/>
+				   	<field name='comment'/>
+					</group>
+				</sheet>
+			</form>
+		</field>
+	    </record>
+
+
+
+	    <record id='counters list' model='ir.ui.view'>
+		<field name='name'>counters list</field>
+		<field name='model'>flights.counters</field>
+		<field name='arch' type='xml'>
+			<tree>
+					<field name='name'/>
+					<field name='flight'/>
+					<field name='Availability'/>
+					<field name='plane_type'/>
+					
+
+			</tree>
+		</field>
+	    </record>
+
+	    <record id='counters form' model='ir.ui.view'>
+		<field name='name'>counters form</field>
+		<field name='model'>flights.counters</field>
+		<field name='arch' type='xml'>
+			<form>
+		        
+				<sheet>
+					<group>
+					<field name='name'/>
+					<field name='flight'/>
+					<field name='plane_type'/>
+					<field name='Availability'/>
+				</group>
+				</sheet>
+			</form>
+		</field>
+	    </record>
+
+	</data>
+</odoo>
