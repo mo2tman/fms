@@ -21,21 +21,22 @@ class Flight(models.Model):
     planetype = fields.Selection([('wide','Wide Body'),('small','Small Body')],default="small",compute="get_type",string="Plane Type")
     eta = fields.Datetime('Estimated Time Arrival')
     etd = fields.Datetime('Estimated Time Departure')
+    start_time = fields.Datetime()
     route = fields.Text()
     remark = fields.Date()
-    counters = fields.Many2many("fms.counter")
+    counter = fields.Char()
     state = fields.Selection([('draft','Draft'),('confirmed','Confirmed')],default='draft')
 
     @api.one
     def get_type(self):
         # date = datetime.strptime(self.eta,FMT)
-        # print()
-        # print()
+        print()
+        print()
         # print(self.eta)
         # print(str(date + timedelta(hours=7)))
-        # print()
-        # print()
-        # print()
+        print()
+        print()
+        print()
         if self.name[:1] == 'A':
             self.planetype = 'wide'
         else:
@@ -43,28 +44,44 @@ class Flight(models.Model):
 
     @api.multi
     def create_schedule(self):
+        counter = '0'
 
         date = datetime.strptime(self.etd,FMT)
-        #date_minus_three = date - timedelta(hours=3)
-        schedules = self.env['fms.schedule'].search([
-            ('arrival_date','=',date.date()),
-             #('start_time','>=',self.date_minus_three),
-            ('end_time','<=',self.etd)])
+        date_minus_three = date - timedelta(hours=3)
+        self.start_time = date_minus_three
+        for i in range(1,5):
+            schedules = self.env['fms.schedule'].search(['&','&',
+                ('arrival_date','=',date.date()),
+                ('counter','=',i),'|','&',
+                ('start_time','<=',self.start_time),
+                ('end_time','>=',self.start_time),'&',
+                ('start_time','<=',self.etd),
+                ('end_time','>=',self.etd)])
+            print()
+            print()
+            print()
+            print(i)
+            print([schedule.flight.name for schedule in schedules])
+            print()
+            print()
+            print()
+            print()
+
+            if len(schedules) == 0:
+                print(True)
+                counter = str(i)
+                break
+            else: print(False)
+        print(counter)
        
             
-        print()
-        print()
-        print()
-        #print(date_minus_three)
-        print([schedule.flight.name for schedule in schedules])
-        print()
-        print()
         self.env['fms.schedule'].create({
             'flight':self.id,
             'arrival_date': date.date(),
             'start_time':date - timedelta(hours=3),
             'end_time':self.etd,
-            'counter':[(6,0,[counter.id for counter in self.counters])]
+            'counter': counter
+            # [(6,0,[counter.id for counter in self.counters])]
             })
 
         self.state = 'confirmed'
@@ -81,11 +98,21 @@ class Schedule(models.Model):
     _name = 'fms.schedule'
 
     name = fields.Char()
-    counter = fields.Many2many("fms.counter")
+    counter = fields.Char()
     flight = fields.Many2one("fms.flight")
     arrival_date = fields.Date()
     start_time = fields.Datetime()
     end_time = fields.Datetime()
+
+    @api.one
+    def printing(self):
+        print()
+        print()
+        print()
+        print(self.end_time)
+        print()
+        print()
+        print()
         
 
 
@@ -101,33 +128,33 @@ class Type(models.Model):
         self.typecalc = 0 if self.name[:1] == 'A' else 1
 
 
-class Counter(models.Model):
-    _name = 'fms.counter'
+# class Counter(models.Model):
+#     _name = 'fms.counter'
 
-    name = fields.Char()
-    available = fields.Boolean()
-    ETAcoun = fields.Float('ETA')
-    timenow = fields.Float(compute='get_time')
-    eta = fields.Datetime()
+#     name = fields.Char()
+#     available = fields.Boolean()
+#     ETAcoun = fields.Float('ETA')
+#     timenow = fields.Float(compute='get_time')
+#     eta = fields.Datetime()
 
 
- ########  To get current time
-    @api.one
-    def get_time(self):
-        self.real_time_refresh()            
-        self.available = True if self.timenow == self.ETAcoun else False
+#  ########  To get current time
+#     @api.one
+#     def get_time(self):
+#         self.real_time_refresh()            
+#         self.available = True if self.timenow == self.ETAcoun else False
 
-    @api.model
-    def real_time_refresh(self):
-        timeObj = fields.datetime.now()
-        hour = timeObj.time().hour
-        minute = timeObj.time().minute
+#     @api.model
+#     def real_time_refresh(self):
+#         timeObj = fields.datetime.now()
+#         hour = timeObj.time().hour
+#         minute = timeObj.time().minute
 
-        x = float('%s.%s' % (hour, minute if minute > 10 else '0'+ str(minute)))
+#         x = float('%s.%s' % (hour, minute if minute > 10 else '0'+ str(minute)))
 
-        records = self.env['fms.counter'].search([])
-        for record in records:
-            record.timenow = x
+#         records = self.env['fms.counter'].search([])
+#         for record in records:
+#             record.timenow = x
 
 #   Airline = fields.One2many('airline.company','name')    
 
