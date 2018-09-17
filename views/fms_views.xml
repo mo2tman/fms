@@ -41,6 +41,7 @@
                     <field name='route'/>
                     <field name='remark'/>
                     <field name='counter'/>
+                    <field name='stand'/>
               </group>
             </group>
         </sheet>
@@ -50,7 +51,7 @@
 
 
      
-    <record id='Type_list' model='ir.ui.view'>
+    <!-- <record id='Type_list' model='ir.ui.view'>
       <field name='name'>Type List</field>
       <field name='model'>fms.type</field>
       <field name='arch' type='xml'>
@@ -74,7 +75,7 @@
           </sheet>
         </form>
       </field>
-    </record>
+    </record> -->
 
     <!-- <record id='Counter_list' model='ir.ui.view'>
       <field name='name'>Counter List</field>
@@ -129,10 +130,14 @@
       <field name='arch' type='xml'>
         <tree create="false">
         <field name="counter"/>
+        <field name="stand"/>
         <field name="flight"/>
         <field name="arrival_date"/>
-        <field name="start_time"/>
-        <field name="end_time"/>
+        <field name="counter_start_time"/>
+        <field name="counter_end_time"/>
+        <field name="stand_start_time"/>
+        <field name="stand_end_time"/>
+        <field name="planetype"/>
         </tree>
       </field>
     </record>

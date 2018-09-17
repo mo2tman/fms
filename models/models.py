@@ -17,46 +17,57 @@ FMT = '%Y-%m-%d %H:%M:%S'
 class Flight(models.Model):
     _name = 'fms.flight'
 
-    name = fields.Char(default=" ",string="Flight Number")
-    planetype = fields.Selection([('wide','Wide Body'),('small','Small Body')],default="small",compute="get_type",string="Plane Type")
+    name = fields.Char(string="Flight Number")
+    planetype = fields.Selection([('wide','Wide Body'),('small','Small Body')],default="small",compute="get_type",string="Plane Type",store=True)
     eta = fields.Datetime('Estimated Time Arrival')
     etd = fields.Datetime('Estimated Time Departure')
     start_time = fields.Datetime()
+    end_time = fields.Datetime()
     route = fields.Text()
     remark = fields.Date()
     counter = fields.Char()
     state = fields.Selection([('draft','Draft'),('confirmed','Confirmed')],default='draft')
+    stand = fields.Char()
 
     @api.one
     def get_type(self):
         # date = datetime.strptime(self.eta,FMT)
-        print()
-        print()
-        # print(self.eta)
-        # print(str(date + timedelta(hours=7)))
-        print()
-        print()
-        print()
         if self.name[:1] == 'A':
             self.planetype = 'wide'
         else:
             self.planetype = 'small'
+        print()
+        print()
+        print()
+        print(self.name)
+        print(self.planetype)
+        print()
+        print()
+        print()
 
     @api.multi
     def create_schedule(self):
         counter = '0'
+        stand = '0'
+        counter_found = False
+        stand_found = False
 
-        date = datetime.strptime(self.etd,FMT)
-        date_minus_three = date - timedelta(hours=3)
+        date_dep = datetime.strptime(self.etd,FMT)
+        date_arr = datetime.strptime(self.eta,FMT)
+        date_minus_three = date_dep - timedelta(hours=3)
+        date_plus_two = date_arr + timedelta(hours=2)
         self.start_time = date_minus_three
-        for i in range(1,5):
+        self.end_time = date_plus_two
+
+
+        for i in range(1,8):
             schedules = self.env['fms.schedule'].search(['&','&',
-                ('arrival_date','=',date.date()),
+                ('arrival_date','=',date_dep.date()),
                 ('counter','=',i),'|','&',
-                ('start_time','<=',self.start_time),
-                ('end_time','>=',self.start_time),'&',
-                ('start_time','<=',self.etd),
-                ('end_time','>=',self.etd)])
+                ('counter_start_time','<=',self.start_time),
+                ('counter_end_time','>=',self.start_time),'&',
+                ('counter_start_time','<=',self.etd),
+                ('counter_end_time','>=',self.etd)])
             print()
             print()
             print()
@@ -69,20 +80,55 @@ class Flight(models.Model):
 
             if len(schedules) == 0:
                 print(True)
+                counter_found = True
                 counter = str(i)
                 break
             else: print(False)
         print(counter)
+
+
+        loop_total = 0
+        loop_total = 4 if self.planetype == 'wide' else  44
+        for i in range(1,loop_total):
+            schedules = self.env['fms.schedule'].search(['&','&',
+                ('arrival_date','=',date_arr.date()),
+                ('stand','=',i),'|','&',
+                ('stand_start_time','<=',self.eta),
+                ('stand_end_time','>=',self.eta),'&',
+                ('stand_start_time','<=',self.end_time),
+                ('stand_end_time','>=',self.end_time),
+                ('planetype','=',self.planetype)])
+            print()
+            print()
+            print()
+            print(i)
+            print([schedule.flight.name for schedule in schedules])
+            print()
+            print()
+            print()
+            print()
+
+            if len(schedules) == 0:
+                print(True)
+                stand_found = True
+                stand = str(i)
+                break
+            else: print(False)
+        print(stand)
        
             
-        self.env['fms.schedule'].create({
-            'flight':self.id,
-            'arrival_date': date.date(),
-            'start_time':date - timedelta(hours=3),
-            'end_time':self.etd,
-            'counter': counter
-            # [(6,0,[counter.id for counter in self.counters])]
-            })
+        if counter_found and stand_found: 
+            self.env['fms.schedule'].create({
+                'flight':self.id,
+                'arrival_date': date_dep.date(),
+                'counter_start_time':date_minus_three,
+                'stand_start_time':self.eta,
+                'counter_end_time':self.etd,
+                'stand_end_time':date_plus_two,
+                'counter': counter,
+                'stand': stand
+                # [(6,0,[counter.id for counter in self.counters])]
+                })
 
         self.state = 'confirmed'
 ###########################################
@@ -101,8 +147,12 @@ class Schedule(models.Model):
     counter = fields.Char()
     flight = fields.Many2one("fms.flight")
     arrival_date = fields.Date()
-    start_time = fields.Datetime()
-    end_time = fields.Datetime()
+    counter_start_time = fields.Datetime()
+    stand_start_time = fields.Datetime()
+    counter_end_time = fields.Datetime()
+    stand_end_time = fields.Datetime()
+    stand = fields.Char()
+    planetype = fields.Selection([('wide','Wide Body'),('small','Small Body')],related="flight.planetype")
 
     @api.one
     def printing(self):
@@ -117,15 +167,15 @@ class Schedule(models.Model):
 
 
 
-class Type(models.Model):
-    _name = 'fms.type'
+# class Type(models.Model):
+#     _name = 'fms.type'
 
-    name = fields.Char()
-    typecalc = fields.Char(compute='get_type')
+#     name = fields.Char()
+#     typecalc = fields.Char(compute='get_type')
 
-    @api.one
-    def get_type(self):
-        self.typecalc = 0 if self.name[:1] == 'A' else 1
+#     @api.one
+#     def get_type(self):
+#         self.typecalc = 0 if self.name[:1] == 'A' else 1
 
 
 # class Counter(models.Model):
