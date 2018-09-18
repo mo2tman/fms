@@ -27,8 +27,8 @@
         # 'security/ir.model.access.csv',
         'views/views.xml',
         'views/templates.xml',
-        'views/fms_menu.xml',
         'views/fms_views.xml',
+        'views/fms_menu.xml',
     ],
     # only loaded in demonstration mode
     'demo': [

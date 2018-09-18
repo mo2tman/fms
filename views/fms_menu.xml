@@ -2,15 +2,20 @@
     <data>
      
       <act_window id="action_flight" name="Flights" res_model="fms.flight" view_mode="tree,form" />
-      <act_window id="action_schedule" name="Schedule" res_model="fms.schedule" view_mode="tree"/>
+      <act_window id="action_schedule" name="Schedule" res_model="fms.schedule" view_mode="tree" 
+        context="{'search_default_today':1}"/>
+      <act_window id="action_airline" name="Airline" res_model="fms.airline" view_mode="tree,form"/>
+      <act_window id="action_performance" name="Performance" res_model="fms.performance" view_type="form" view_id="fms.wizard_form" view_mode="form" target="new"/>
       <!-- <act_window id="action_type" name="Types" res_model="fms.type" view_mode="tree,form"/> -->
       <!-- <act_window id="action_counter" name="Counters" res_model="fms.counter" view_mode="tree,form"/> -->
 
-      <menuitem id="menu_fms" name="fms"/>
+      <menuitem id="menu_fms" name="fms" web_icon="fms,static/description/icon.png"/>
       <!-- <menuitem id="menu_configuration" name="Configuration" parent="menu_fms"/> -->
       
       <menuitem id="flights" name="Flights" parent='menu_fms' action='action_flight'/>
       <menuitem id="schedule" name="Schedule" parent='menu_fms' action='action_schedule'/>
+      <menuitem id="airline" name="Airline" parent='menu_fms' action='action_airline'/>
+      <menuitem id="performance" name="Performance" parent='menu_fms' action='action_performance'/>
       <!-- <menuitem id="types" name="Types" parent='menu_configuration' action='action_type'/> -->
       <!-- <menuitem id="counters" name="Counters" parent='menu_configuration' action='action_counter'/> -->
      <!-- <menuitem id="grades" name="Grades" parent='menu_school_management' action='action_grade'/> -->

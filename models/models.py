@@ -3,6 +3,7 @@
 
 from odoo import models, fields, api
 from datetime import datetime, timedelta
+from odoo.exceptions import ValidationError
 # from dateutil.relativedelta import relativedelta
 
 # import sys
@@ -28,6 +29,40 @@ class Flight(models.Model):
     counter = fields.Char()
     state = fields.Selection([('draft','Draft'),('confirmed','Confirmed')],default='draft')
     stand = fields.Char()
+    ata = fields.Datetime('Actual Time Arrival')
+    atd = fields.Datetime('Actual Time Departure')
+    arrived = fields.Boolean()
+    arrival = fields.Selection([('late','Late'),('on_time','On Time')])
+    departure = fields.Selection([('late','Late'),('on_time','On Time')])
+    airline = fields.Many2one('fms.airline')
+
+
+    @api.onchange('eta','etd')
+    def set_actual(self):
+        self.ata = self.eta
+        self.atd = self.etd
+
+    @api.one
+    def flight_performance(self):
+        eta = datetime.strptime(self.eta,FMT)
+        etd = datetime.strptime(self.etd,FMT)
+        ata = datetime.strptime(self.ata,FMT)
+        atd = datetime.strptime(self.atd,FMT)
+        arr_result = (ata - eta).seconds / 60
+        dep_result = (atd - etd).seconds / 60
+
+        if arr_result > 30:
+            self.arrival = 'late'
+        else:
+            self.arrival = 'on_time'
+
+        if dep_result > 30:
+            self.departure = 'late'
+        else:
+            self.departure = 'on_time'
+
+
+
 
     @api.one
     def get_type(self):
@@ -83,7 +118,10 @@ class Flight(models.Model):
                 counter_found = True
                 counter = str(i)
                 break
-            else: print(False)
+
+        if not counter_found: 
+            raise ValidationError('No Counter Found')
+            return
         print(counter)
 
 
@@ -113,7 +151,9 @@ class Flight(models.Model):
                 stand_found = True
                 stand = str(i)
                 break
-            else: print(False)
+        if not stand_found: 
+            raise ValidationError('No Stand Found')
+            return
         print(stand)
        
             
@@ -121,6 +161,7 @@ class Flight(models.Model):
             self.env['fms.schedule'].create({
                 'flight':self.id,
                 'arrival_date': date_dep.date(),
+                'arrival_date': self.eta,
                 'counter_start_time':date_minus_three,
                 'stand_start_time':self.eta,
                 'counter_end_time':self.etd,
@@ -147,6 +188,7 @@ class Schedule(models.Model):
     counter = fields.Char()
     flight = fields.Many2one("fms.flight")
     arrival_date = fields.Date()
+    arrival_time = fields.Datetime()
     counter_start_time = fields.Datetime()
     stand_start_time = fields.Datetime()
     counter_end_time = fields.Datetime()
@@ -178,14 +220,58 @@ class Schedule(models.Model):
 #         self.typecalc = 0 if self.name[:1] == 'A' else 1
 
 
-# class Counter(models.Model):
-#     _name = 'fms.counter'
+class Airline(models.Model):
+    _name = 'fms.airline'
 
-#     name = fields.Char()
-#     available = fields.Boolean()
-#     ETAcoun = fields.Float('ETA')
-#     timenow = fields.Float(compute='get_time')
-#     eta = fields.Datetime()
+    name = fields.Char()
+
+
+class Perfomance(models.TransientModel):
+    _name='fms.performance'
+
+    airline = fields.Many2one('fms.airline')
+    arrival_date = fields.Date()
+    flights = fields.Many2many('fms.flight',compute="get_flights")
+    no_flights = fields.Integer(compute="get_flights")
+    late_arrival = fields.Integer(compute="get_flights")
+    late_departure = fields.Integer(compute="get_flights")
+    performance = fields.Float(compute="get_flights")
+    start_date = fields.Date()
+    end_date = fields.Date()
+
+    @api.one
+    def get_flights(self):
+        self.flights = self.env['fms.flight'].search([('airline','=',self.airline.id)
+            ,('ata','>=',self.start_date),('ata','<=',self.end_date)])
+        print()
+        print()
+        print()
+        print()
+        print(self.flights)
+        print()
+        print()
+        print()
+        print()
+        print()
+        self.no_flights = len(self.flights)
+        late_arrival = 0 
+        late_departure = 0 
+        for flight in self.flights:
+            if flight.arrival == 'late':
+                late_arrival += 1
+
+            if flight.departure == 'late':
+                late_departure += 1
+
+        self.late_arrival = late_arrival
+        self.late_departure = late_departure
+
+        self.performance = (1 - (late_arrival + late_departure ) / self.no_flights) * 100
+
+
+        
+    # flight = fields.One2many('fms.flight','name','Flights')
+    
 
 
 #  ########  To get current time

@@ -5,13 +5,18 @@
       <field name='name'>FlightList</field>
       <field name='model'>fms.flight</field>
       <field name='arch' type='xml'>
-        <tree>
+        <tree 
+          decoration-success="(arrival == 'on_time')"
+          decoration-danger="(arrival == 'late') or (departure == 'late')"
+          >
           <field name='name'/>
           <field name='planetype'/>
           <field name='eta'/>
           <field name='etd'/>
           <field name='route'/>
           <field name='remark'/>
+          <field name='arrival' invisible="1"/>
+          <field name='departure' invisible="1"/>
         </tree>
       </field>
     </record>
@@ -24,11 +29,13 @@
           <header>
             <field name='state' widget="statusbar"/>
             <button type="object" name="create_schedule" string="Confirm"/>
+            <button type="object" name="flight_performance" string="flight performance"/>
           </header>
           <sheet>
             <group>
               <group>
                 <field name='name'/>
+                <field name='airline'/>
                     <field name='eta'/>
               </group>
               <group>
@@ -44,10 +51,109 @@
                     <field name='stand'/>
               </group>
             </group>
+            <group>
+                <group>
+                  <field name="ata"/>
+                  <field name="atd"/>
+                </group>
+                <group>
+                  <field name="arrival"/>
+                  <field name="departure"/>
+                </group>
+              </group>
         </sheet>
         </form>
       </field>
     </record>
+
+    <report 
+      id="fms.report_performance"
+      model="fms.performance"
+      string="Airline Performance"
+      report_type="qweb-html"
+      name="fms.template_perofmance"/>
+
+    <record id="fms.wizard_form" model="ir.ui.view">
+      <field name='name'>Wizard Forom</field>
+      <field name='model'>fms.performance</field>
+      <field name='arch' type='xml'>
+        <form>
+            <group>
+              <field name="start_date"/>
+              <field name="end_date"/>
+              <field name="airline"/>
+            </group>
+            <footer>
+              <button type="action" name="fms.report_performance" string="print" class="oe_highlight"/>
+              <button class="oe_link" string="Cancel" special="cancel"/>
+            </footer>
+        </form>
+      </field>
+    </record>
+
+
+    <template id="fms.template_perofmance">
+      <t t-call="web.html_container">
+        <t t-call="web.internal_layout">
+          <div class="page">
+            <t t-foreach="docs" t-as="doc">
+              <div class="row">
+                <div class="col-md-12">
+                  <h1 style="text-align:center;"><span t-field="doc.airline.name"/> Airline Performance</h1>
+                </div>
+              </div>
+
+              <table class="table table-striped table-bordered">
+                <tbody>
+                    <tr>
+                      <td>Late Arrival Flights</td>
+                      <td><span t-field="doc.late_arrival"/></td>
+                    </tr>
+                    <tr>
+                      <td>Late Departure Flights</td>
+                      <td><span t-field="doc.late_departure"/></td>
+                    </tr>
+                    <tr>
+                      <td>Airline Performance</td>
+                      <td><span t-field="doc.performance"/>%</td>
+                    </tr>
+                </tbody>
+              </table>
+
+              <br/>
+              <br/>
+              <br/>
+              <br/>
+
+              
+              <div class="row">
+                <div class="col-md-12">
+                  <h1 style="text-align:center;"><span t-field="doc.airline.name"/> Airline Flights</h1>
+                </div>
+              </div>
+              
+              <table class="table table-striped table-bordered">
+                <thead>
+                  <th>Flight Name</th>
+                  <th>Arrival Time</th>
+                  <th>Arrival Departue</th>
+                </thead>
+                <tbody>
+                  <t t-foreach="doc.flights" t-as="flight">
+                    <tr>
+                      <td><span t-field="flight.name"/></td>
+                      <td><span t-field="flight.ata"/></td>
+                      <td><span t-field="flight.atd"/></td>
+                    </tr>
+                  </t>
+                </tbody>
+              </table>
+
+            </t>
+          </div>
+        </t>
+      </t>
+    </template>
 
 
      
@@ -139,6 +245,16 @@
         <field name="stand_end_time"/>
         <field name="planetype"/>
         </tree>
+      </field>
+    </record>
+
+    <record id="schedule_search" model="ir.ui.view">
+      <field name='name'>Schedule Tree</field>
+      <field name='model'>fms.schedule</field>
+      <field name='arch' type='xml'>
+        <search>
+          <filter name="today" string="Today's Flights" domain="[('arrival_date','=',time.strftime('%Y-%m-%d'))]"/>
+        </search>
       </field>
     </record>
 
