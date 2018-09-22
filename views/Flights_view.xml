@@ -10,7 +10,6 @@
 				<field name='route'/>
 				<field name='etd'/>
 				<field name='eta'/>
-		    	<field name='remark'/>
 			</tree>
 		</field>
 	    </record>
@@ -27,7 +26,6 @@
 						<field name='route'/>
 						<field name='etd'/>
 						<field name='eta'/>
-				    	<field name='remark'/>
 					</group>
 				</sheet>
 			</form>
@@ -37,15 +35,13 @@
 	    <record id='dailyflights list' model='ir.ui.view'>
 		<field name='name'>dailyflights list</field>
 		<field name='model'>flights.dailytable</field>
-		<!-- <field name='inherit_id' ref ='timetable list'/> -->
 		<field name='arch' type='xml'>
 			<tree>
 					<field name='name'/>
 					<field name='plane_type'/>
 					<field name='route'/>
 					<field name='etd'/>
-					<field name='eta'/>
-				   	<field name='remark'/>	
+					<field name='eta'/>	
 				   	<field name='atd'/>
 				   	<field name='ata'/>	
 				   	<field name='status'/>
@@ -67,8 +63,7 @@
 					<field name='plane_type'/>
 					<field name='route'/>
 					<field name='etd'/>
-					<field name='eta'/>
-				   	<field name='remark'/>	
+					<field name='eta'/>	
 				   	<field name='atd'/>
 				   	<field name='ata'/>	
 				   	<field name='status'/>
