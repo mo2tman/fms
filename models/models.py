@@ -29,6 +29,7 @@ class Flight(models.Model):
     arrival = fields.Selection([('late','Late'),('on_time','On Time')])
     departure = fields.Selection([('late','Late'),('on_time','On Time')])
     airline = fields.Many2one('fms.airline')
+    test = fields.Integer()
 
 
     @api.onchange('eta','etd') #function to give a default values foe ata and atd equals to the e
@@ -56,7 +57,8 @@ class Flight(models.Model):
             self.departure = 'on_time'
 
 
-
+    def testFunction(self):
+        pass
 
     @api.one
     def get_type(self): #to get the type
