@@ -19,7 +19,7 @@ class Flight(models.Model):
     etd = fields.Datetime('Estimated Time Departure')
     start_time = fields.Datetime()
     end_time = fields.Datetime()
-    route = fields.Text()
+    Route = fields.Text(string="Route")
     counter = fields.Char()
     state = fields.Selection([('draft','Draft'),('confirmed','Confirmed')],default='draft')
     stand = fields.Char()

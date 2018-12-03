@@ -13,7 +13,7 @@
           <field name='planetype'/>
           <field name='eta'/>
           <field name='etd'/>
-          <field name='route'/>
+          <field name='Route'/>
           <field name='arrival' invisible="1"/>
           <field name='departure' invisible="1"/>
         </tree>
@@ -44,7 +44,7 @@
             </group>
             <group>
                 <group>
-                    <field name='route'/>
+                    <field name='Route'/>
                    
               </group>
             </group>
