@@ -23,13 +23,13 @@ class Flight(models.Model):
     counter = fields.Char()
     state = fields.Selection([('draft','Draft'),('confirmed','Confirmed')],default='draft')
     stand = fields.Char()
+    test = fields.Integer()
     ata = fields.Datetime('Actual Time Arrival')
     atd = fields.Datetime('Actual Time Departure')
     arrived = fields.Boolean()
     arrival = fields.Selection([('late','Late'),('on_time','On Time')])
     departure = fields.Selection([('late','Late'),('on_time','On Time')])
     airline = fields.Many2one('fms.airline')
-    test = fields.Integer()
 
 
     @api.onchange('eta','etd') #function to give a default values foe ata and atd equals to the e
@@ -64,26 +64,10 @@ class Flight(models.Model):
     def get_type(self): #to get the type
         if self.name[:1] == 'A':
             self.planetype = 'wide'
-            print() 
-            print()
-            print()
-            print()
-            print(self.planetype)
-            print()
-            print()
-            print()
-            print()
-            print()
         else:
             self.planetype = 'small'
 
-             
-            print()
-            print()
-            print()
-            print()
-            print(self.planetype)
-            print()
+            
       
     @api.multi
     def create_schedule(self):
