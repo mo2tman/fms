@@ -15,8 +15,8 @@ class Flight(models.Model):
 
     name = fields.Char(string="Flight Number")
     planetype = fields.Selection([('wide','Wide Body'),('small','Small Body')],default="small",compute="get_type",string="Plane Type")
-    eta = fields.Datetime('Estimated Time Arrival')
-    etd = fields.Datetime('Estimated Time Departure')
+    ETA = fields.Date('Estimated Time Arrival')
+    ETD = fields.Date('Estimated Time Departure')
     start_time = fields.Datetime()
     end_time = fields.Datetime()
     Route = fields.Text(string="Route")
